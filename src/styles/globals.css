@@ -1,0 +1,157 @@
+/* TaxSathi AI — Design tokens & base styles */
+
+@import url("https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap");
+
+:root {
+  /* Palette */
+  --primary: #1b4332; /* deep forest green */
+  --primary-light: #2d5a45;
+  --accent: #52b788; /* fresh green */
+  --accent-light: #74c69d;
+  --accent-bg: #e8f5ee;
+  --warning: #e76f51; /* warm coral */
+  --warning-bg: #fbe9e3;
+  --bg: #f8f5f0; /* warm off-white */
+  --surface: #ffffff;
+  --text: #2d3436; /* near-black */
+  --text-muted: #6b7280;
+  --border: #e7e2da;
+
+  /* Old vs New regime accent colours */
+  --old-from: #f4a261;
+  --old-to: #e76f51;
+  --new-from: #52b788;
+  --new-to: #1b4332;
+
+  /* Typography */
+  --font-heading: "Sora", system-ui, sans-serif;
+  --font-body: "DM Sans", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* Layout */
+  --content-max: 680px;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow-sm: 0 1px 3px rgba(27, 67, 50, 0.08);
+  --shadow: 0 6px 24px rgba(27, 67, 50, 0.1);
+  --shadow-lg: 0 16px 48px rgba(27, 67, 50, 0.14);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 16px; /* prevents iOS zoom on input focus */
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-heading);
+  color: var(--primary);
+  line-height: 1.2;
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+button {
+  font-family: var(--font-body);
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+input {
+  font-family: var(--font-body);
+  font-size: 16px;
+}
+
+a {
+  color: var(--accent);
+}
+
+/* App shell */
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.container {
+  width: 100%;
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 12px 24px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 16px;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+}
+.btn:active {
+  transform: scale(0.98);
+}
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: var(--shadow-sm);
+}
+.btn-primary:hover {
+  background: var(--primary-light);
+}
+.btn-accent {
+  background: var(--accent);
+  color: #fff;
+}
+.btn-accent:hover {
+  background: var(--accent-light);
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--primary);
+  border: 1.5px solid var(--border);
+}
+.btn-ghost:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
