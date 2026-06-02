@@ -34,11 +34,18 @@ Get a free key (no credit card) at https://aistudio.google.com/app/apikey.
 
 ## Task 1 — Enable DENSE semantic search (the network-blocked feature)
 
-**Why:** retrieval currently uses BM25 (lexical) because the Hugging Face
-embedding model was blocked. This task adds a semantic (embeddings) retriever
-using Gemini's free `text-embedding-004`, which is reachable where HF is not.
-The pipeline already abstracts the retriever, so this is additive — **do not
-change the BM25 code; keep all existing tests passing.**
+> **UPDATE:** the runtime code for this task is **already implemented** —
+> `src/ai/rag/embedder.js` and `retrieveSmart()` in `src/ai/rag/retriever.js`
+> exist, and `src/ai/qa/askTaxSathi.js` already calls `retrieveSmart`. So you
+> only need **Step 1.1** below (add the key + run `npm run build:kb`) and the
+> **Step 1.5** verification. Steps 1.2–1.4 are kept for reference only — the
+> files already match them; do not recreate them.
+
+**Why:** retrieval uses BM25 (lexical) by default because the Hugging Face
+embedding model was blocked. The dense path uses Gemini's free
+`text-embedding-004` (reachable where HF is not) and activates automatically
+once `public/kb-index.json` exists and a key is set — otherwise it falls back to
+BM25. It is additive — **do not change the BM25 code; keep all 49 tests passing.**
 
 ### Step 1.1 — Build the embedding index
 

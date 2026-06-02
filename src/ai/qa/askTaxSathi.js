@@ -10,7 +10,7 @@
  *   verbatim with citations (ADR-009: retrieval is the guarantee, LLM enhances).
  * - Off-domain questions are refused rather than hallucinated.
  */
-import { retrieve } from "../rag/retriever.js";
+import { retrieveSmart } from "../rag/retriever.js";
 import { getProvider } from "../llm/index.js";
 
 const SYSTEM_PROMPT = `You are TaxSathi, a friendly Indian tax assistant for FY 2025-26 (AY 2026-27).
@@ -59,7 +59,7 @@ export async function askTaxSathi(question) {
   const q = (question || "").trim();
   if (!q) return { answer: "Ask me anything about your tax regime or deductions.", sources: [], grounded: false, mode: "empty" };
 
-  const hits = retrieve(q, { k: 4 });
+  const hits = await retrieveSmart(q, { k: 4 });
   if (!hits.length) {
     return { answer: OFF_DOMAIN, sources: [], grounded: false, mode: "off-domain" };
   }

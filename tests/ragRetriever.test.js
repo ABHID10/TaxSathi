@@ -1,7 +1,7 @@
 import { describe, test, expect } from "vitest";
 import { tokenize } from "../src/ai/rag/tokenize.js";
 import { buildIndex, search } from "../src/ai/rag/lexicalRetriever.js";
-import { retrieve } from "../src/ai/rag/retriever.js";
+import { retrieve, retrieveSmart } from "../src/ai/rag/retriever.js";
 import { KNOWLEDGE } from "../src/ai/rag/knowledge/taxKnowledge.js";
 
 describe("tokenize", () => {
@@ -61,5 +61,25 @@ describe("retrieve facade", () => {
 
   test("off-domain query returns no hits", () => {
     expect(retrieve("who won the cricket match yesterday").length).toBe(0);
+  });
+});
+
+describe("retrieveSmart (dense-or-lexical facade)", () => {
+  // With no Gemini key in the test env, retrieveSmart must transparently
+  // behave like BM25 — the dense path is a strict, opt-in upgrade.
+  test("falls back to BM25 results when embeddings are unavailable", async () => {
+    const smart = await retrieveSmart("home loan interest deduction limit", { k: 3 });
+    const lexical = retrieve("home loan interest deduction limit", { k: 3 });
+    expect(smart.map((h) => h.doc.id)).toEqual(lexical.map((h) => h.doc.id));
+  });
+
+  test("applies the same domain gate (off-domain → empty)", async () => {
+    expect((await retrieveSmart("best recipe for pasta")).length).toBe(0);
+  });
+
+  test("returns grounded hits for an in-domain query", async () => {
+    const hits = await retrieveSmart("how much can I invest under 80C", { k: 3 });
+    expect(hits.length).toBeGreaterThan(0);
+    expect(hits[0].doc).toHaveProperty("url");
   });
 });

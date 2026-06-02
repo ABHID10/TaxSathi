@@ -66,7 +66,7 @@ npm run build:kb   # OPTIONAL: build a dense embedding index (needs GEMINI_API_K
 
 The grounded Q&A is **RAG** over `src/ai/rag/knowledge/taxKnowledge.js` (curated, cited chunks):
 
-- **Retrieval:** BM25 lexical by default — no model, no key, works offline (`src/ai/rag/`). A dense path (Gemini `text-embedding-004`, via `npm run build:kb`) is an opt-in upgrade behind the same `retrieve()` API.
+- **Retrieval:** BM25 lexical by default — no model, no key, works offline (`src/ai/rag/`). A **dense semantic path** (Gemini `text-embedding-004`) is fully wired behind `retrieveSmart()`: it activates automatically when a Gemini key is set **and** `public/kb-index.json` exists (build it with `npm run build:kb`), and falls back to BM25 otherwise. Same retrieval contract either way.
 - **LLM:** behind `src/ai/llm/getProvider()` — Gemini today, swappable for Groq/Llama or Ollama.
 - **Grounding:** answers cite their sources; off-domain questions are refused. See `docs/AI_STRATEGY.md` for the full feature roadmap (Form 16 ingestion, what-if planner agent).
 
