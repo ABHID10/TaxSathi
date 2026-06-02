@@ -25,6 +25,7 @@ import TaxMeter from "./components/TaxMeter.jsx";
 import RegimeResult from "./components/RegimeResult.jsx";
 import DeductionChecklist from "./components/DeductionChecklist.jsx";
 import ActionPlan from "./components/ActionPlan.jsx";
+import AskTaxSathi from "./components/AskTaxSathi.jsx";
 import Disclaimer from "./components/Disclaimer.jsx";
 import PDFReport from "./components/PDFReport.jsx";
 
@@ -258,6 +259,7 @@ function Results({ rec, input, insight, insightLoading, onDownload, onShare, dow
         winner={rec.comparison.winner}
       />
       <ActionPlan rec={rec} input={input} />
+      <AskTaxSathi />
 
       <div style={{ display: "flex", gap: 12, margin: "16px 0" }}>
         <button className="btn btn-accent" style={{ flex: 1 }} onClick={onDownload} disabled={downloading}>

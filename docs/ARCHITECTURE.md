@@ -40,6 +40,46 @@ React (Vite SPA)
 ### ADR-006 — `constants.js` as the single source of truth
 - All slabs, limits, rebate thresholds, and section codes live in `src/engine/constants.js`. No tax figure is hardcoded anywhere else. Annual Budget updates are a one-file change.
 
+### ADR-007 — Open-source / API embeddings over a hosted model download (RAG)
+- The "Ask TaxSathi" feature is grounded retrieval (RAG) over a curated tax corpus. Embeddings are pluggable behind `ai/rag` so we are not locked to one model.
+
+### ADR-008 — Static in-browser vector index over a hosted vector DB
+- For a curated, bounded corpus this is simpler, free, and private; Qdrant/Supabase pgvector are the documented migration path for per-user document vectors (F2).
+
+### ADR-009 — Retrieval is the guarantee; the LLM is enhancement
+- "Ask TaxSathi" returns grounded, cited snippets even with **no API key** (extractive mode). The LLM only synthesises a nicer narrative when configured. Off-domain questions are refused, never hallucinated.
+
+### ADR-010 — LLM provider abstraction for model portability
+- All LLM calls go through `ai/llm/getProvider()`, so Gemini ↔ Groq/Llama ↔ Ollama is a one-file swap.
+
+### ADR-011 — BM25 lexical retrieval as the default scorer
+- **Context:** the Hugging Face model CDN is blocked on many corporate networks (observed: HTTP 403 on `huggingface.co`), so in-browser dense embeddings (transformers.js) cannot be guaranteed to load.
+- **Decision:** ship **BM25 sparse retrieval** (no model, no key, no network) as the default — a standard, strong RAG retriever for bounded corpora — with a tax-domain gate to refuse off-topic queries. Keep a **dense path** (Gemini `text-embedding-004`, built via `npm run build:kb`) as an opt-in upgrade behind the same `retrieve()` API.
+- **Consequence:** the feature works everywhere, offline, with zero cost; retrieval quality upgrades to semantic with one build step + key when desired. `@xenova/transformers` was removed (it added 3 critical CVEs and a large bundle).
+
+---
+
+## RAG subsystem (Ask TaxSathi)
+
+```
+question
+   │
+   ▼
+isOnDomain()  ── domain gate: refuse off-topic queries
+   │
+   ▼
+retrieve()  ── BM25 over curated KB (default) | dense cosine (opt-in)
+   │
+   ▼
+askTaxSathi()  ── grounds answer in top-k cited chunks
+   │
+   ├─► provider configured → LLM synthesises a cited answer
+   └─► no key / error      → extractive cited answer (still grounded)
+   │
+   ▼
+{ answer, sources[], grounded, mode }  → AskTaxSathi.jsx renders inline [n] citations
+```
+
 ---
 
 ## Data Flow

@@ -8,10 +8,8 @@
  * Privacy: only numeric values and flags are sent. No name / PAN / employer.
  */
 
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { getProvider } from "./llm/index.js";
 import { formatRupees } from "../utils/formatter.js";
-
-const MODEL = "gemini-2.5-flash";
 
 const SYSTEM_PROMPT = `You are TaxSathi, a friendly and knowledgeable Indian tax advisor.
 A salaried employee has just run their tax analysis. Explain the results in
@@ -109,28 +107,22 @@ export async function getGeminiInsight(rec) {
   const key = JSON.stringify(payload);
   if (_cache.has(key)) return _cache.get(key);
 
-  const apiKey = import.meta?.env?.VITE_GEMINI_API_KEY;
-  if (!apiKey || apiKey === "your_gemini_api_key_here") {
+  const provider = getProvider();
+  if (!provider.isConfigured()) {
     const res = { text: localFallbackInsight(rec), source: "fallback" };
     _cache.set(key, res);
     return res;
   }
 
   try {
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({
-      model: MODEL,
-      systemInstruction: SYSTEM_PROMPT,
-    });
     const prompt = `Here is the user's tax analysis (numbers only):\n${JSON.stringify(
       payload,
       null,
       2
     )}\n\nWrite the insight paragraph now.`;
 
-    const result = await model.generateContent(prompt);
-    const text = result.response.text().trim();
-    const res = { text: text || localFallbackInsight(rec), source: "gemini" };
+    const text = await provider.generate({ system: SYSTEM_PROMPT, prompt });
+    const res = { text: text || localFallbackInsight(rec), source: provider.name };
     _cache.set(key, res);
     return res;
   } catch (err) {

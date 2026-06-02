@@ -13,6 +13,7 @@ An AI-powered personal tax advisor for India's salaried employees. TaxSathi answ
 - **Live tax meter** — both regimes recalculate in real time as you type (client-side, sub-millisecond).
 - **Deduction gap analysis** — shows exactly how much tax benefit you're leaving on the table, by section, with urgency flags.
 - **Break-even calculator** — the deduction level at which the old regime starts to win.
+- **Ask TaxSathi (grounded RAG Q&A)** — ask tax questions in plain language and get answers **grounded in a curated FY 2025-26 rulebook with inline source citations**. Off-domain questions are refused, not hallucinated. Works with no API key (extractive mode); richer synthesis when Gemini is configured.
 - **AI insight** — a warm, plain-language explanation via Gemini 2.5 Flash, with a deterministic offline fallback (the app never breaks if the AI is down).
 - **Action plan** — personalised next steps (declare to HR, gather docs, invest before March 31, file ITR), sorted by urgency.
 - **PDF export + WhatsApp share** — generated entirely in the browser.
@@ -55,10 +56,19 @@ The app works fully without an API key (it falls back to a deterministic persona
 
 ```bash
 npm run dev        # dev server
-npm test           # run the 36-test engine suite (Vitest)
+npm test           # run the 49-test suite (engine + RAG/QA, Vitest)
 npm run build      # production bundle → dist/
 npm run preview    # preview the production build
+npm run build:kb   # OPTIONAL: build a dense embedding index (needs GEMINI_API_KEY)
 ```
+
+### AI architecture (Ask TaxSathi)
+
+The grounded Q&A is **RAG** over `src/ai/rag/knowledge/taxKnowledge.js` (curated, cited chunks):
+
+- **Retrieval:** BM25 lexical by default — no model, no key, works offline (`src/ai/rag/`). A dense path (Gemini `text-embedding-004`, via `npm run build:kb`) is an opt-in upgrade behind the same `retrieve()` API.
+- **LLM:** behind `src/ai/llm/getProvider()` — Gemini today, swappable for Groq/Llama or Ollama.
+- **Grounding:** answers cite their sources; off-domain questions are refused. See `docs/AI_STRATEGY.md` for the full feature roadmap (Form 16 ingestion, what-if planner agent).
 
 ---
 
