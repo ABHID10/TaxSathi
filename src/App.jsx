@@ -25,11 +25,13 @@ import TaxMeter from "./components/TaxMeter.jsx";
 import RegimeResult from "./components/RegimeResult.jsx";
 import DeductionChecklist from "./components/DeductionChecklist.jsx";
 import ActionPlan from "./components/ActionPlan.jsx";
+import TaxStrategies from "./components/TaxStrategies.jsx";
 import AskTaxSathi from "./components/AskTaxSathi.jsx";
 import Disclaimer from "./components/Disclaimer.jsx";
 import PDFReport from "./components/PDFReport.jsx";
 
 import { recommendRegime } from "./engine/regimeAdvisor.js";
+import { generateTaxStrategies } from "./engine/taxOptimizer.js";
 import { getGeminiInsight } from "./ai/geminiAdvisor.js";
 import { downloadPDF, buildShareText } from "./utils/pdfGenerator.js";
 import { saveSession, loadSession, clearSession } from "./utils/storage.js";
@@ -76,6 +78,12 @@ export default function App() {
 
   // Recommendation recomputed synchronously whenever input changes.
   const rec = useMemo(() => (input.ctc > 0 ? recommendRegime(input) : null), [input]);
+
+  // Tax strategies generated based on recommendation
+  const strategies = useMemo(
+    () => (rec ? generateTaxStrategies(input, rec) : []),
+    [rec, input]
+  );
 
   // Fire Gemini once we land on the results step (and when numbers change there).
   useEffect(() => {
@@ -147,6 +155,7 @@ export default function App() {
           ) : (
             <Results
               rec={rec}
+              strategies={strategies}
               input={input}
               insight={insight}
               insightLoading={insightLoading}
@@ -236,7 +245,7 @@ function Landing({ onStart }) {
   );
 }
 
-function Results({ rec, input, insight, insightLoading, onDownload, onShare, downloading }) {
+function Results({ rec, strategies, input, insight, insightLoading, onDownload, onShare, downloading }) {
   if (!rec) {
     return (
       <div className="card" style={{ marginTop: 24 }}>
@@ -258,6 +267,7 @@ function Results({ rec, input, insight, insightLoading, onDownload, onShare, dow
         oldRegimeRelevant={rec.oldRegimeRelevant}
         winner={rec.comparison.winner}
       />
+      {strategies.length > 0 && <TaxStrategies strategies={strategies} />}
       <ActionPlan rec={rec} input={input} />
       <AskTaxSathi />
 

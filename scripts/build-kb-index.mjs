@@ -8,12 +8,13 @@
  * model (see src/ai/rag/embedder.js) and the retriever switches to cosine
  * similarity automatically when the index is present.
  *
- * We use Gemini embeddings (not a Hugging Face model) because many corporate
- * networks block the HF CDN; the Google endpoint is generally reachable and
- * the embeddings API is free-tier.
+ 
  *
  * Run:  GEMINI_API_KEY=xxx npm run build:kb       (PowerShell: $env:GEMINI_API_KEY="xxx"; npm run build:kb)
  */
+import dotenv from "dotenv";
+dotenv.config();
+
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { writeFileSync, mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
@@ -22,7 +23,7 @@ import { KNOWLEDGE, KB_VERSION } from "../src/ai/rag/knowledge/taxKnowledge.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUT = resolve(__dirname, "../public/kb-index.json");
-const MODEL = "text-embedding-004";
+const MODEL = "gemini-embedding-001";
 
 const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
 if (!apiKey) {

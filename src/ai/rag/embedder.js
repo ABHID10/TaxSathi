@@ -8,7 +8,7 @@
  */
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const MODEL = "text-embedding-004";
+const MODEL = "gemini-embedding-001";
 
 function getKey() {
   const k = import.meta?.env?.VITE_GEMINI_API_KEY;
